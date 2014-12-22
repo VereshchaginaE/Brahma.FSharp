@@ -41,7 +41,7 @@ type Processor<'a> (functions: array<'a -> 'a -> 'a>) =
             then arg1 <- grid.[rowFrom, colFrom].Value
             if (grid.ContainsKey (rowTo, colTo))
             then arg2 <- grid.[rowTo, colTo].Value
- 
+            
             ((rowTo, colTo), functions.[colTo] arg2 arg1)
  
         | Mvc ((row, col), arg) ->
@@ -52,11 +52,11 @@ type Processor<'a> (functions: array<'a -> 'a -> 'a>) =
             then arg1 <- grid.[row, col].Value
  
             ((row, col), functions.[col] arg1 arg)
- 
+             
         | Eps -> failwith "Just for VS"
  
     let executeLine (line: array<Asm<'a>>) =
-        let cellsForWrite = new HashSet<(int * int)>()
+        let cellsForWrite = new HashSet<(int * int)> ()
                    
         for i in 0..line.Length - 1 do
             match line.[i] with
@@ -65,7 +65,7 @@ type Processor<'a> (functions: array<'a -> 'a -> 'a>) =
                 if int col > functions.Length - 1
                 then raise (CellOutOfRange (int row, int col))
                
-                if cellsForWrite.Add (int row, int col) = false
+                if not (cellsForWrite.Add (int row, int col))
                 then raise (DoubleWriteIntoCell (int row, int col))
            
             | Mov ((rowTo, sndTo), (rowFrom, sndFrom)) ->
@@ -74,8 +74,8 @@ type Processor<'a> (functions: array<'a -> 'a -> 'a>) =
                 elif int sndFrom > functions.Length - 1
                 then raise (CellOutOfRange (int rowFrom, int sndFrom))
                
-                if cellsForWrite.Add (int rowTo, int sndTo) = false
-                then raise ((DoubleWriteIntoCell (int rowTo, int sndTo)))
+                if not (cellsForWrite.Add (int rowTo, int sndTo))
+                then raise (DoubleWriteIntoCell (int rowTo, int sndTo))
            
             | Eps -> ()
                
@@ -126,7 +126,7 @@ type Processor<'a> (functions: array<'a -> 'a -> 'a>) =
                         with
                         | DoubleWriteIntoCell (fst, snd) -> raise (IncorrectLine (i, "Double write into cell" + " " +
                                                                                   fst.ToString() + " " + snd.ToString()))
-                        | CellOutOfRange (fst, snd) -> raise (IncorrectLine (i, "Can't create cell" +  " " +
+                        | CellOutOfRange (fst, snd) -> raise (IncorrectLine (i, "Can't create cell" + " " +
                                                                              fst.ToString() + " " + snd.ToString()))
         with
         | IncorrectLine (i, msg) -> reraise ()
